@@ -10,6 +10,7 @@ public class CharacterController : MonoBehaviour
     private float currentSpeed;
     private Rigidbody rb;
     private Animator animator;
+    private bool isGrounded;
 
     private Vector3 previousPosition;
 
@@ -46,9 +47,10 @@ public class CharacterController : MonoBehaviour
         // Animator-Parameter setzen
         animator.SetFloat("speed", speed);
 
-        if (Input.GetKeyDown(KeyCode.Space) && Mathf.Abs(rb.velocity.y) < 0.01f)
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            isGrounded = false; // Um Doppelsprünge zu verhindern, setzen wir isGrounded hier auf false.
         }
     }
 
@@ -62,5 +64,23 @@ public class CharacterController : MonoBehaviour
         {
             rb.AddForce(Physics.gravity * (gravityMultiplier - 1), ForceMode.Acceleration);
         }
+    }
+
+    void OnCollisionStay(Collision collision)
+    {
+        // Überprüfe, ob der Spieler den Boden oder ein anderes Objekt berührt
+        foreach (ContactPoint contact in collision.contacts)
+        {
+            if (contact.normal.y > 0.5f) // Prüfe, ob die normale der Kollision nach oben zeigt
+            {
+                isGrounded = true;
+            }
+        }
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        // Setze isGrounded auf false, wenn der Spieler das Objekt verlässt
+        isGrounded = false;
     }
 }
