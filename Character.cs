@@ -2,15 +2,16 @@ using UnityEngine;
 
 public class CharacterControllerScript : MonoBehaviour
 {
-    public float walkSpeed = 2f;
-    public float runSpeed = 6f;
-    public float jumpForce = 20f; // Erhöhte Sprungkraft
-    public float gravityScale = 2.3f; // Schwerkraft-Skalierung
+    public float walkSpeed = 20f;
+    public float runSpeed = 30f;
+    public float jumpForce = 40f; // Erhöhte Sprungkraft
+    public float gravityScale = 4.5f; // Schwerkraft-Skalierung
     private Animator animator;
     private CharacterController characterController;
     private Vector3 moveDirection;
     private float gravity = -9.81f;
     private bool isGrounded;
+    private bool isJumping; // Neues Flag für den Sprung
 
     void Start()
     {
@@ -48,10 +49,11 @@ public class CharacterControllerScript : MonoBehaviour
         {
             moveDirection = horizontalMovement;
 
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
             {
                 moveDirection.y = jumpForce;
                 animator.SetBool("IsJumping", true);
+                isJumping = true; // Setze das Flag auf true
             }
             else
             {
@@ -87,6 +89,7 @@ public class CharacterControllerScript : MonoBehaviour
         if (isGrounded && !Input.GetKey(KeyCode.Space))
         {
             animator.SetBool("IsJumping", false);
+            isJumping = false; // Setze das Flag auf false
         }
     }
 
@@ -96,6 +99,7 @@ public class CharacterControllerScript : MonoBehaviour
         {
             // Falls der Charakter den Boden berührt, setze IsJumping auf false
             animator.SetBool("IsJumping", false);
+            isJumping = false; // Setze das Flag auf false
         }
     }
 }
