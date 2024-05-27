@@ -4,14 +4,15 @@ public class CharacterControllerScript : MonoBehaviour
 {
     public float walkSpeed = 20f;
     public float runSpeed = 30f;
-    public float jumpForce = 40f; // Erhöhte Sprungkraft
-    public float gravityScale = 4.5f; // Schwerkraft-Skalierung
+    public float jumpForce = 40f;
+    public float gravityScale = 4.5f;
+
     private Animator animator;
     private CharacterController characterController;
     private Vector3 moveDirection;
     private float gravity = -9.81f;
     private bool isGrounded;
-    private bool isJumping; // Neues Flag für den Sprung
+    private bool isJumping;
 
     void Start()
     {
@@ -31,10 +32,8 @@ public class CharacterControllerScript : MonoBehaviour
             return;
         }
 
-        // Überprüfen, ob der Charakter den Boden berührt
         isGrounded = characterController.isGrounded;
 
-        // Bewegungseingaben erhalten
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
 
@@ -53,29 +52,35 @@ public class CharacterControllerScript : MonoBehaviour
             {
                 moveDirection.y = jumpForce;
                 animator.SetBool("IsJumping", true);
-                isJumping = true; // Setze das Flag auf true
+                isJumping = true;
             }
             else
             {
                 moveDirection.y = 0f;
             }
+
+            // Reset IsFalling when grounded and not jumping
+            animator.SetBool("IsFalling", false);
         }
         else
         {
             moveDirection.x = horizontalMovement.x;
             moveDirection.z = horizontalMovement.z;
             moveDirection.y += gravity * gravityScale * Time.deltaTime;
+
+            // Set IsFalling if in the air and falling
+            if (moveDirection.y < 0)
+            {
+                animator.SetBool("IsFalling", true);
+            }
         }
 
-        // Bewegung anwenden
         characterController.Move(moveDirection * Time.deltaTime);
 
-        // Animator-Parameter setzen
         animator.SetFloat("Speed", new Vector3(characterController.velocity.x, 0, characterController.velocity.z).magnitude);
         animator.SetFloat("VerticalSpeed", moveVertical);
         animator.SetBool("IsSprinting", isRunning);
 
-        // Neue Logik für SlowRun-Animation
         if (moveVertical > 0 && !isRunning && moveHorizontal == 0)
         {
             animator.SetBool("IsSlowRunning", true);
@@ -85,21 +90,26 @@ public class CharacterControllerScript : MonoBehaviour
             animator.SetBool("IsSlowRunning", false);
         }
 
-        // Überprüfen, ob der Charakter den Boden berührt und die Sprunganimation beenden
         if (isGrounded && !Input.GetKey(KeyCode.Space))
         {
             animator.SetBool("IsJumping", false);
-            isJumping = false; // Setze das Flag auf false
+            isJumping = false;
         }
+
+        // Ensure isGrounded is correctly set in Animator
+        animator.SetBool("IsGrounded", isGrounded);
+
+        // Debug-Ausgaben zum Überprüfen der Zustände
+        Debug.Log($"isGrounded: {isGrounded}, isJumping: {isJumping}, velocity.y: {characterController.velocity.y}");
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.gameObject.CompareTag("Ground") && !Input.GetKey(KeyCode.Space))
         {
-            // Falls der Charakter den Boden berührt, setze IsJumping auf false
             animator.SetBool("IsJumping", false);
-            isJumping = false; // Setze das Flag auf false
+            isJumping = false;
+            animator.SetBool("IsFalling", false); // Reset IsFalling when hitting the ground
         }
     }
 }
