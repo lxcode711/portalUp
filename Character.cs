@@ -4,8 +4,8 @@ public class CharacterControllerScript : MonoBehaviour
 {
     public float walkSpeed = 2f;
     public float runSpeed = 6f;
-    public float jumpForce = 10f; // Erhöhte Sprungkraft
-    public float gravityScale = 5f; // Schwerkraft-Skalierung
+    public float jumpForce = 20f; // Erhöhte Sprungkraft
+    public float gravityScale = 2.3f; // Schwerkraft-Skalierung
     private Animator animator;
     private CharacterController characterController;
     private Vector3 moveDirection;
@@ -84,7 +84,7 @@ public class CharacterControllerScript : MonoBehaviour
         }
 
         // Überprüfen, ob der Charakter den Boden berührt und die Sprunganimation beenden
-        if (isGrounded)
+        if (isGrounded && !Input.GetKey(KeyCode.Space))
         {
             animator.SetBool("IsJumping", false);
         }
@@ -92,7 +92,7 @@ public class CharacterControllerScript : MonoBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (hit.gameObject.CompareTag("Ground"))
+        if (hit.gameObject.CompareTag("Ground") && !Input.GetKey(KeyCode.Space))
         {
             // Falls der Charakter den Boden berührt, setze IsJumping auf false
             animator.SetBool("IsJumping", false);
