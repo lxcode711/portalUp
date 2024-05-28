@@ -2,10 +2,12 @@ using UnityEngine;
 
 public class CharacterControllerScript : MonoBehaviour
 {
-    public float walkSpeed = 20f;
-    public float runSpeed = 30f;
-    public float jumpForce = 40f;
-    public float gravityScale = 4.5f;
+    public float walkSpeed = 50f;
+    public float runSpeed = 71f;
+    public float jumpForce = 80.2f;
+    public float gravityScale = 10f;
+    public float airControlFactor = 0.5f; // Faktor zur Reduzierung der Bewegung in der Luft
+    public float groundCheckDistance = 0.1f; // Abstand zur Überprüfung der Bodenberührung
 
     private Animator animator;
     private CharacterController characterController;
@@ -32,17 +34,18 @@ public class CharacterControllerScript : MonoBehaviour
             return;
         }
 
-        isGrounded = characterController.isGrounded;
+        // Manuelle Bodenprüfung mit Raycast
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, groundCheckDistance);
 
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
 
         bool isRunning = Input.GetKey(KeyCode.LeftShift);
-        float speed = isRunning ? runSpeed : walkSpeed;
+        float targetSpeed = isRunning ? runSpeed : walkSpeed;
 
         Vector3 forwardMovement = transform.forward * moveVertical;
         Vector3 rightMovement = transform.right * moveHorizontal;
-        Vector3 horizontalMovement = (forwardMovement + rightMovement).normalized * speed;
+        Vector3 horizontalMovement = (forwardMovement + rightMovement).normalized * targetSpeed;
 
         if (isGrounded)
         {
@@ -64,8 +67,9 @@ public class CharacterControllerScript : MonoBehaviour
         }
         else
         {
-            moveDirection.x = horizontalMovement.x;
-            moveDirection.z = horizontalMovement.z;
+            // Reduziere die Bewegungsgeschwindigkeit in der Luft
+            moveDirection.x = horizontalMovement.x * airControlFactor;
+            moveDirection.z = horizontalMovement.z * airControlFactor;
             moveDirection.y += gravity * gravityScale * Time.deltaTime;
 
             // Set IsFalling if in the air and falling
@@ -77,17 +81,26 @@ public class CharacterControllerScript : MonoBehaviour
 
         characterController.Move(moveDirection * Time.deltaTime);
 
-        animator.SetFloat("Speed", new Vector3(characterController.velocity.x, 0, characterController.velocity.z).magnitude);
+        float currentSpeed = new Vector3(characterController.velocity.x, 0, characterController.velocity.z).magnitude;
+        animator.SetFloat("Speed", currentSpeed);
         animator.SetFloat("VerticalSpeed", moveVertical);
         animator.SetBool("IsSprinting", isRunning);
 
-        if (moveVertical > 0 && !isRunning && moveHorizontal == 0)
+        // Übergangswerte anpassen
+        if (currentSpeed > 0 && currentSpeed < walkSpeed)
         {
             animator.SetBool("IsSlowRunning", true);
+            animator.SetBool("IsSprinting", false);
+        }
+        else if (currentSpeed >= 55)
+        {
+            animator.SetBool("IsSlowRunning", false);
+            animator.SetBool("IsSprinting", true);
         }
         else
         {
             animator.SetBool("IsSlowRunning", false);
+            animator.SetBool("IsSprinting", false);
         }
 
         if (isGrounded && !Input.GetKey(KeyCode.Space))
@@ -100,7 +113,7 @@ public class CharacterControllerScript : MonoBehaviour
         animator.SetBool("IsGrounded", isGrounded);
 
         // Debug-Ausgaben zum Überprüfen der Zustände
-        Debug.Log($"isGrounded: {isGrounded}, isJumping: {isJumping}, velocity.y: {characterController.velocity.y}");
+        Debug.Log($"isGrounded: {isGrounded}, isJumping: {isJumping}, velocity.y: {characterController.velocity.y}, currentSpeed: {currentSpeed}");
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
