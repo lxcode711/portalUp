@@ -7,7 +7,7 @@ public class CharacterControllerScript : MonoBehaviour
     public float jumpForce = 80.2f;
     public float gravityScale = 10f;
     public float airControlFactor = 0.5f; // Faktor zur Reduzierung der Bewegung in der Luft
-    public float groundCheckDistance = 0.1f; // Abstand zur Überprüfung der Bodenberührung
+    public float groundCheckDistance = 0.3f; // Abstand zur Überprüfung der Bodenberührung
 
     private Animator animator;
     private CharacterController characterController;
@@ -34,8 +34,8 @@ public class CharacterControllerScript : MonoBehaviour
             return;
         }
 
-        // Manuelle Bodenprüfung mit Raycast
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, groundCheckDistance);
+        // Verwende CharacterController.isGrounded in Kombination mit einem Raycast
+        isGrounded = characterController.isGrounded || CheckGrounded();
 
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
@@ -79,6 +79,12 @@ public class CharacterControllerScript : MonoBehaviour
             }
         }
 
+        // Füge eine minimale Bewegung hinzu, um sicherzustellen, dass der CharacterController ständig seine Position überprüft
+        if (moveDirection.magnitude < 0.01f && isGrounded)
+        {
+            moveDirection.y = -0.1f; // Minimal nach unten bewegen, um Bodenkontakt zu behalten
+        }
+
         characterController.Move(moveDirection * Time.deltaTime);
 
         float currentSpeed = new Vector3(characterController.velocity.x, 0, characterController.velocity.z).magnitude;
@@ -114,6 +120,16 @@ public class CharacterControllerScript : MonoBehaviour
 
         // Debug-Ausgaben zum Überprüfen der Zustände
         Debug.Log($"isGrounded: {isGrounded}, isJumping: {isJumping}, velocity.y: {characterController.velocity.y}, currentSpeed: {currentSpeed}");
+    }
+
+    private bool CheckGrounded()
+    {
+        // Die Höhe und Länge des Raycast anpassen
+        float rayLength = groundCheckDistance;
+        Vector3 rayStart = transform.position + Vector3.up * 0.1f; // Raycast leicht über dem Charakter starten
+
+        Debug.DrawRay(rayStart, Vector3.down * rayLength, Color.red);
+        return Physics.Raycast(rayStart, Vector3.down, rayLength);
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
