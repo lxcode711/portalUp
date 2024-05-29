@@ -8,6 +8,8 @@ public class CharacterControllerScript : MonoBehaviour
     public float gravityScale = 10f;
     public float airControlFactor = 0.5f; // Faktor zur Reduzierung der Bewegung in der Luft
     public float groundCheckDistance = 0.3f; // Abstand zur Überprüfung der Bodenberührung
+    public Transform startPlatform; // Startplattform
+    public float respawnHeightThreshold = -10f; // Höhe für Respawn
 
     private Animator animator;
     private CharacterController characterController;
@@ -15,6 +17,8 @@ public class CharacterControllerScript : MonoBehaviour
     private float gravity = -9.81f;
     private bool isGrounded;
     private bool isJumping;
+    private Vector3 respawnPoint; // Respawn Punkt
+    private int currentCheckpointIndex = -1;
 
     void Start()
     {
@@ -25,6 +29,16 @@ public class CharacterControllerScript : MonoBehaviour
         {
             Debug.LogError("CharacterController-Komponente nicht gefunden! Bitte fügen Sie einen CharacterController hinzu.");
         }
+
+        if (startPlatform != null)
+        {
+            respawnPoint = startPlatform.position; // Setze den Respawn Punkt auf die Startplattform
+            Debug.Log($"Startplattform gesetzt auf: {respawnPoint}");
+        }
+        else
+        {
+            Debug.LogError("Startplattform nicht gesetzt! Bitte setzen Sie die Startplattform im Inspector.");
+        }
     }
 
     void Update()
@@ -32,6 +46,13 @@ public class CharacterControllerScript : MonoBehaviour
         if (characterController == null)
         {
             return;
+        }
+
+        // Überprüfe, ob der Spieler unter die Respawn-Höhe gefallen ist
+        if (transform.position.y < respawnHeightThreshold)
+        {
+            Debug.Log("Spieler unter Respawn-Höhe gefallen.");
+            Respawn();
         }
 
         // Verwende CharacterController.isGrounded in Kombination mit einem Raycast
@@ -139,6 +160,24 @@ public class CharacterControllerScript : MonoBehaviour
             animator.SetBool("IsJumping", false);
             isJumping = false;
             animator.SetBool("IsFalling", false); // Reset IsFalling when hitting the ground
+        }
+    }
+
+    private void Respawn()
+    {
+        Debug.Log("Respawning...");
+        characterController.enabled = false; // Deaktivieren Sie den CharacterController vor der Positionsänderung
+        transform.position = respawnPoint;
+        characterController.enabled = true; // Aktivieren Sie den CharacterController nach der Positionsänderung
+    }
+
+    public void SetCheckpoint(Vector3 newCheckpoint, int checkpointIndex)
+    {
+        if (checkpointIndex > currentCheckpointIndex)
+        {
+            Debug.Log($"Checkpoint erreicht: {checkpointIndex} bei Position {newCheckpoint}");
+            respawnPoint = newCheckpoint;
+            currentCheckpointIndex = checkpointIndex;
         }
     }
 }
