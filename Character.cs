@@ -55,7 +55,7 @@ public class CharacterControllerScript : MonoBehaviour
             Respawn();
         }
 
-        // Verwende CharacterController.isGrounded in Kombination mit einem Raycast
+        // CharacterController.isGrounded in Kombination mit einem Raycast
         isGrounded = characterController.isGrounded || CheckGrounded();
 
         float moveHorizontal = Input.GetAxis("Horizontal");
