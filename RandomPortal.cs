@@ -35,7 +35,7 @@ public class RandomPortal : MonoBehaviour
         CharacterController characterController = playerTransform.GetComponent<CharacterController>();
         if (characterController != null)
         {
-            characterController.enabled = false; // Deaktiviere Character Controller vor der Teleportation
+            characterController.enabled = false; 
         }
 
         playerTransform.position = targetPosition;
@@ -43,7 +43,7 @@ public class RandomPortal : MonoBehaviour
 
         if (characterController != null)
         {
-            characterController.enabled = true; // Reaktiviere Character Controller nach der Teleportation
+            characterController.enabled = true; 
         }
     }
 }

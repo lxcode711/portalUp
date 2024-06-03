@@ -24,3 +24,4 @@ public class PlayerHeightDisplay : MonoBehaviour
         textMeshPro.text = "Height: " + playerTransform.position.y.ToString("F2");
     }
 }
+
