@@ -139,8 +139,7 @@ public class CharacterControllerScript : MonoBehaviour
         // Ensure isGrounded is correctly set in Animator
         animator.SetBool("IsGrounded", isGrounded);
 
-        // Debug-Ausgaben zum Überprüfen der Zustände
-        Debug.Log($"isGrounded: {isGrounded}, isJumping: {isJumping}, velocity.y: {characterController.velocity.y}, currentSpeed: {currentSpeed}");
+        
     }
 
     private bool CheckGrounded()
