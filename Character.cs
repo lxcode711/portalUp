@@ -10,7 +10,6 @@ public class CharacterControllerScript : MonoBehaviour
     public float groundCheckDistance = 0.3f; // Abstand zur Überprüfung der Bodenberührung
     public Transform startPlatform; // Startplattform
     public float respawnHeightThreshold = -10f; // Höhe für Respawn
-    public GameOverScript gameOverScript; // Referenz zum GameOverScript
 
     private Animator animator;
     private CharacterController characterController;
@@ -20,8 +19,6 @@ public class CharacterControllerScript : MonoBehaviour
     private bool isJumping;
     private Vector3 respawnPoint; // Respawn Punkt
     private int currentCheckpointIndex = -1;
-    private bool isGameOver = false;
-    private bool inputEnabled = true; // Flag zum Steuern der Eingaben
 
     void Start()
     {
@@ -42,30 +39,23 @@ public class CharacterControllerScript : MonoBehaviour
         {
             Debug.LogError("Startplattform nicht gesetzt! Bitte setzen Sie die Startplattform im Inspector.");
         }
-
-        // Cursor standardmäßig sperren und unsichtbar machen
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
     }
 
     void Update()
     {
-        if (isGameOver || !inputEnabled)
-        {
-            return; // Keine Eingaben verarbeiten, wenn das Spiel vorbei ist oder Eingaben deaktiviert sind
-        }
-
         if (characterController == null)
         {
             return;
         }
 
+        // Überprüfe, ob der Spieler unter die Respawn-Höhe gefallen ist
         if (transform.position.y < respawnHeightThreshold)
         {
             Debug.Log("Spieler unter Respawn-Höhe gefallen.");
-            ShowGameOver();
+            Respawn();
         }
 
+        // CharacterController.isGrounded in Kombination mit einem Raycast
         isGrounded = characterController.isGrounded || CheckGrounded();
 
         float moveHorizontal = Input.GetAxis("Horizontal");
@@ -90,21 +80,30 @@ public class CharacterControllerScript : MonoBehaviour
             }
             else
             {
-                moveDirection.y = -0.1f; // Leicht nach unten bewegen, um Bodenkontakt zu behalten
+                moveDirection.y = 0f;
             }
 
+            // Reset IsFalling when grounded and not jumping
             animator.SetBool("IsFalling", false);
         }
         else
         {
+            // Reduziere die Bewegungsgeschwindigkeit in der Luft
             moveDirection.x = horizontalMovement.x * airControlFactor;
             moveDirection.z = horizontalMovement.z * airControlFactor;
             moveDirection.y += gravity * gravityScale * Time.deltaTime;
 
+            // Set IsFalling if in the air and falling
             if (moveDirection.y < 0)
             {
                 animator.SetBool("IsFalling", true);
             }
+        }
+
+        // Füge eine minimale Bewegung hinzu, um sicherzustellen, dass der CharacterController ständig seine Position überprüft
+        if (moveDirection.magnitude < 0.01f && isGrounded)
+        {
+            moveDirection.y = -0.1f; // Minimal nach unten bewegen, um Bodenkontakt zu behalten
         }
 
         characterController.Move(moveDirection * Time.deltaTime);
@@ -114,6 +113,7 @@ public class CharacterControllerScript : MonoBehaviour
         animator.SetFloat("VerticalSpeed", moveVertical);
         animator.SetBool("IsSprinting", isRunning);
 
+        // Übergangswerte anpassen
         if (currentSpeed > 0 && currentSpeed < walkSpeed)
         {
             animator.SetBool("IsSlowRunning", true);
@@ -136,7 +136,11 @@ public class CharacterControllerScript : MonoBehaviour
             isJumping = false;
         }
 
+        // Ensure isGrounded is correctly set in Animator
         animator.SetBool("IsGrounded", isGrounded);
+
+        // Debug-Ausgaben zum Überprüfen der Zustände
+        Debug.Log($"isGrounded: {isGrounded}, isJumping: {isJumping}, velocity.y: {characterController.velocity.y}, currentSpeed: {currentSpeed}");
     }
 
     private bool CheckGrounded()
@@ -159,11 +163,12 @@ public class CharacterControllerScript : MonoBehaviour
         }
     }
 
-    private void ShowGameOver()
+    private void Respawn()
     {
-        Debug.Log("Game Over");
-        isGameOver = true;
-        gameOverScript.ShowGameOverScreen();
+        Debug.Log("Respawning...");
+        characterController.enabled = false; // Deaktivieren Sie den CharacterController vor der Positionsänderung
+        transform.position = respawnPoint;
+        characterController.enabled = true; // Aktivieren Sie den CharacterController nach der Positionsänderung
     }
 
     public void SetCheckpoint(Vector3 newCheckpoint, int checkpointIndex)
@@ -174,21 +179,5 @@ public class CharacterControllerScript : MonoBehaviour
             respawnPoint = newCheckpoint;
             currentCheckpointIndex = checkpointIndex;
         }
-    }
-
-    // Methoden zum Aktivieren und Deaktivieren der Eingaben
-    public void DisableInput()
-    {
-        inputEnabled = false;
-    }
-
-    public void EnableInput()
-    {
-        inputEnabled = true;
-    }
-
-    public void SetGameOverState(bool state)
-    {
-        isGameOver = state;
     }
 }
