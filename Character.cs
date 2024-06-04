@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CharacterControllerScript : MonoBehaviour
 {
@@ -52,7 +53,7 @@ public class CharacterControllerScript : MonoBehaviour
         if (transform.position.y < respawnHeightThreshold)
         {
             Debug.Log("Spieler unter Respawn-Höhe gefallen.");
-            Respawn();
+            GameOver();
         }
 
         // CharacterController.isGrounded in Kombination mit einem Raycast
@@ -169,6 +170,11 @@ public class CharacterControllerScript : MonoBehaviour
         characterController.enabled = false; // Deaktivieren Sie den CharacterController vor der Positionsänderung
         transform.position = respawnPoint;
         characterController.enabled = true; // Aktivieren Sie den CharacterController nach der Positionsänderung
+    }
+
+    private void GameOver()
+    {
+        SceneManager.LoadScene("GameOver");
     }
 
     public void SetCheckpoint(Vector3 newCheckpoint, int checkpointIndex)
