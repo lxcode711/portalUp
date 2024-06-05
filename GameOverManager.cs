@@ -9,6 +9,10 @@ public class GameOverManager : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         PlayGameOverSound();
+
+        // Cursor sichtbar machen und entsperren
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     void PlayGameOverSound()

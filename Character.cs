@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
+using System.Collections;
 
 public class CharacterControllerScript : MonoBehaviour
 {
@@ -11,6 +13,9 @@ public class CharacterControllerScript : MonoBehaviour
     public float groundCheckDistance = 0.3f; // Abstand zur Überprüfung der Bodenberührung
     public Transform startPlatform; // Startplattform
     public float respawnHeightThreshold = -10f; // Höhe für Respawn
+    public float jumpBoostDuration = 5.0f; // Dauer des Jump Boosts
+    public float jumpBoostMultiplier = 2.0f; // Multiplikator für den Jump Boost
+    public TextMeshProUGUI jumpBoostTimerText; // Referenz zum TMP-Text-Element
 
     private Animator animator;
     private CharacterController characterController;
@@ -20,6 +25,8 @@ public class CharacterControllerScript : MonoBehaviour
     private bool isJumping;
     private Vector3 respawnPoint; // Respawn Punkt
     private int currentCheckpointIndex = -1;
+    private bool isJumpBoosted = false;
+    private float jumpBoostEndTime;
 
     void Start()
     {
@@ -39,6 +46,15 @@ public class CharacterControllerScript : MonoBehaviour
         else
         {
             Debug.LogError("Startplattform nicht gesetzt! Bitte setzen Sie die Startplattform im Inspector.");
+        }
+
+        if (jumpBoostTimerText != null)
+        {
+            jumpBoostTimerText.gameObject.SetActive(false); // Verstecke den Text zunächst
+        }
+        else
+        {
+            Debug.LogError("JumpBoostTimerText nicht gesetzt! Bitte setzen Sie das TMP-Text-Element im Inspector.");
         }
     }
 
@@ -75,7 +91,7 @@ public class CharacterControllerScript : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
             {
-                moveDirection.y = jumpForce;
+                moveDirection.y = isJumpBoosted ? jumpForce * jumpBoostMultiplier : jumpForce;
                 animator.SetBool("IsJumping", true);
                 isJumping = true;
             }
@@ -140,6 +156,21 @@ public class CharacterControllerScript : MonoBehaviour
         // Ensure isGrounded is correctly set in Animator
         animator.SetBool("IsGrounded", isGrounded);
 
+        // Aktualisiere den Jump Boost Timer Text
+        if (isJumpBoosted && jumpBoostTimerText != null)
+        {
+            float remainingTime = jumpBoostEndTime - Time.time;
+            if (remainingTime > 0)
+            {
+                jumpBoostTimerText.text = $"Jump Boost: {remainingTime:F1} s";
+            }
+            else
+            {
+                jumpBoostTimerText.gameObject.SetActive(false);
+                isJumpBoosted = false;
+            }
+        }
+
         // Debug-Ausgaben zum Überprüfen der Zustände
         Debug.Log($"isGrounded: {isGrounded}, isJumping: {isJumping}, velocity.y: {characterController.velocity.y}, currentSpeed: {currentSpeed}");
     }
@@ -185,5 +216,39 @@ public class CharacterControllerScript : MonoBehaviour
             respawnPoint = newCheckpoint;
             currentCheckpointIndex = checkpointIndex;
         }
+    }
+
+    // Methode zum Aktivieren des Jump Boosts
+    public void ActivateJumpBoost()
+    {
+        if (!isJumpBoosted)
+        {
+            StartCoroutine(JumpBoostCoroutine());
+        }
+    }
+
+    private IEnumerator JumpBoostCoroutine()
+    {
+        isJumpBoosted = true;
+        jumpBoostEndTime = Time.time + jumpBoostDuration;
+        if (jumpBoostTimerText != null)
+        {
+            jumpBoostTimerText.gameObject.SetActive(true);
+        }
+        yield return new WaitForSeconds(jumpBoostDuration);
+        isJumpBoosted = false;
+        if (jumpBoostTimerText != null)
+        {
+            jumpBoostTimerText.gameObject.SetActive(false);
+        }
+    }
+
+    // Methode zum Respawn durch Portale
+    public void PortalRespawn(Vector3 respawnPosition)
+    {
+        Debug.Log("Respawning through portal...");
+        characterController.enabled = false; // Deaktivieren Sie den CharacterController vor der Positionsänderung
+        transform.position = respawnPosition;
+        characterController.enabled = true; // Aktivieren Sie den CharacterController nach der Positionsänderung
     }
 }
