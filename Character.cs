@@ -41,7 +41,7 @@ public class CharacterControllerScript : MonoBehaviour
         if (startPlatform != null)
         {
             respawnPoint = startPlatform.position; // Setze den Respawn Punkt auf die Startplattform
-            Debug.Log($"Startplattform gesetzt auf: {respawnPoint}");
+            
         }
         else
         {
@@ -56,6 +56,13 @@ public class CharacterControllerScript : MonoBehaviour
         {
             Debug.LogError("JumpBoostTimerText nicht gesetzt! Bitte setzen Sie das TMP-Text-Element im Inspector.");
         }
+
+        // Musik starten
+    MusicController musicController = Object.FindFirstObjectByType<MusicController>();
+    if (musicController != null)
+    {
+        musicController.StartMusic();
+    }
     }
 
     void Update()
@@ -68,7 +75,6 @@ public class CharacterControllerScript : MonoBehaviour
         // Überprüfe, ob der Spieler unter die Respawn-Höhe gefallen ist
         if (transform.position.y < respawnHeightThreshold)
         {
-            Debug.Log("Spieler unter Respawn-Höhe gefallen.");
             GameOver();
         }
 
@@ -171,8 +177,7 @@ public class CharacterControllerScript : MonoBehaviour
             }
         }
 
-        // Debug-Ausgaben zum Überprüfen der Zustände
-        Debug.Log($"isGrounded: {isGrounded}, isJumping: {isJumping}, velocity.y: {characterController.velocity.y}, currentSpeed: {currentSpeed}");
+        
     }
 
     private bool CheckGrounded()
@@ -197,7 +202,7 @@ public class CharacterControllerScript : MonoBehaviour
 
     private void Respawn()
     {
-        Debug.Log("Respawning...");
+        
         characterController.enabled = false; // Deaktivieren Sie den CharacterController vor der Positionsänderung
         transform.position = respawnPoint;
         characterController.enabled = true; // Aktivieren Sie den CharacterController nach der Positionsänderung
@@ -212,7 +217,7 @@ public class CharacterControllerScript : MonoBehaviour
     {
         if (checkpointIndex > currentCheckpointIndex)
         {
-            Debug.Log($"Checkpoint erreicht: {checkpointIndex} bei Position {newCheckpoint}");
+           
             respawnPoint = newCheckpoint;
             currentCheckpointIndex = checkpointIndex;
         }
@@ -246,7 +251,7 @@ public class CharacterControllerScript : MonoBehaviour
     // Methode zum Respawn durch Portale
     public void PortalRespawn(Vector3 respawnPosition)
     {
-        Debug.Log("Respawning through portal...");
+     
         characterController.enabled = false; // Deaktivieren Sie den CharacterController vor der Positionsänderung
         transform.position = respawnPosition;
         characterController.enabled = true; // Aktivieren Sie den CharacterController nach der Positionsänderung
