@@ -11,7 +11,7 @@ public class MusicController : MonoBehaviour
 
     void Start()
     {
-        // Initialisiere die Lautstärke und starte die Musik erst, wenn StartMusic aufgerufen wird.
+        // Musik initialisieren
         if (backgroundMusic != null)
         {
             backgroundMusic.loop = true;
@@ -19,7 +19,7 @@ public class MusicController : MonoBehaviour
         }
     }
 
-    public void StartMusic()
+    public void StartMusic() // Musik starten
     {
         if (backgroundMusic != null && !backgroundMusic.isPlaying)
         {
@@ -28,7 +28,7 @@ public class MusicController : MonoBehaviour
         }
     }
 
-    public void StopMusic()
+    public void StopMusic() // Musik stoppen
     {
         if (backgroundMusic != null && backgroundMusic.isPlaying)
         {
@@ -36,7 +36,7 @@ public class MusicController : MonoBehaviour
         }
     }
 
-    public void StartFadeInMusic()
+    public void StartFadeInMusic() // Musik einblenden
     {
         if (fadeCoroutine != null)
         {
@@ -45,7 +45,7 @@ public class MusicController : MonoBehaviour
         fadeCoroutine = StartCoroutine(FadeInMusic());
     }
 
-    public void StartFadeOutMusic()
+    public void StartFadeOutMusic() // Musik ausblenden
     {
         if (fadeCoroutine != null)
         {
@@ -54,7 +54,7 @@ public class MusicController : MonoBehaviour
         fadeCoroutine = StartCoroutine(FadeOutMusic());
     }
 
-    System.Collections.IEnumerator FadeInMusic()
+    System.Collections.IEnumerator FadeInMusic() 
     {
         float startVolume = backgroundMusic.volume;
         float elapsedTime = 0f;

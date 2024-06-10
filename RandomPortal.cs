@@ -30,7 +30,7 @@ public class RandomPortal : MonoBehaviour
         }
     }
 
-    void TeleportPlayer(Transform playerTransform, Vector3 targetPosition)
+    void TeleportPlayer(Transform playerTransform, Vector3 targetPosition) // Methode zum Teleportieren des Spielers
     {
         CharacterController characterController = playerTransform.GetComponent<CharacterController>();
         if (characterController != null)

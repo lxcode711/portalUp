@@ -12,7 +12,7 @@ public class PortalJumpAndRespawn : MonoBehaviour
             CharacterControllerScript playerScript = other.GetComponent<CharacterControllerScript>();
             if (playerScript != null)
             {
-                if (isJumpBoostPortal)
+                if (isJumpBoostPortal) // Überprüfen, ob es sich um ein Jump-Boost-Portal handelt
                 {
                     Debug.Log("Jump Boost aktiviert");
                     playerScript.ActivateJumpBoost();

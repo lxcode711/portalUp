@@ -11,7 +11,7 @@ public class PlayerHeightDisplay : MonoBehaviour
         // Initialisiere TextMeshPro
         textMeshPro = GetComponent<TextMeshProUGUI>();
 
-        // Finde den Spieler, falls die Referenz nicht manuell gesetzt wurde
+        // Wenn der Spieler-Transform nicht gesetzt ist, suche den Spieler nach dem Tag "Player"
         if (playerTransform == null)
         {
             playerTransform = GameObject.FindWithTag("Player").transform;
@@ -20,7 +20,7 @@ public class PlayerHeightDisplay : MonoBehaviour
 
     void Update()
     {
-        // Aktualisiere den Text mit der aktuellen Höhe des Spielers
+        //Text mit der aktuellen Höhe des Spielers aktualisieren
         textMeshPro.text = "Height: " + playerTransform.position.y.ToString("F2");
     }
 }

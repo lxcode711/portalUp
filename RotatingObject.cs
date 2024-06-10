@@ -20,7 +20,7 @@ public class RotatingObject : MonoBehaviour
         float step = speed * Time.deltaTime;
         float newRotation;
 
-        if (rotatingForward)
+        if (rotatingForward) // Rotation in positive Richtung
         {
             newRotation = Mathf.MoveTowardsAngle(transform.eulerAngles.z, targetRotation, step);
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, newRotation));

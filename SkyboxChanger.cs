@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class SkyboxChanger : MonoBehaviour
 {
-    public Transform player; // Der Spieler, dessen Höhe überwacht wird.
+    public Transform player; 
     public float heightThreshold = 10f; // Die Höhe, bei der sich die Skybox ändert.
     public Material lowSkybox; // Die Skybox für niedrige Höhen.
     public Material highSkybox; // Die Skybox für hohe Höhen.

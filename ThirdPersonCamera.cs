@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ThirdPersonCamera : MonoBehaviour
 {
-    public Transform player; // Dein Player GameObject
+    public Transform player; //  Player GameObject
     public float mouseSensitivity = 10f;
     public Transform cameraTransform;
 

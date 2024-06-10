@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class GameOverManager : MonoBehaviour
 {
-    private AudioSource audioSource;
+    private AudioSource audioSource; // Referenz zum AudioSource
 
     void Start()
     {
@@ -25,7 +25,7 @@ public class GameOverManager : MonoBehaviour
 
     public void RestartGame()
     {
-        // Lade die GameScene neu
+        // Laden der GameScene neu
         SceneManager.LoadScene("GameScene");
     }
 
@@ -33,7 +33,7 @@ public class GameOverManager : MonoBehaviour
     {
         // Beendet das Spiel
         Application.Quit();
-        // Funktioniert nicht im Editor, nur im Build
+        
         #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
         #endif

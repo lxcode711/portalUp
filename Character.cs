@@ -15,7 +15,7 @@ public class CharacterControllerScript : MonoBehaviour
     public float respawnHeightThreshold = -10f; // Höhe für Respawn
     public float jumpBoostDuration = 5.0f; // Dauer des Jump Boosts
     public float jumpBoostMultiplier = 2.0f; // Multiplikator für den Jump Boost
-    public TextMeshProUGUI jumpBoostTimerText; // Referenz zum TMP-Text-Element
+    public TextMeshProUGUI jumpBoostTimerText; // Referenz zum TMP-Text-Element 
 
     private Animator animator;
     private CharacterController characterController;
@@ -40,7 +40,7 @@ public class CharacterControllerScript : MonoBehaviour
 
         if (startPlatform != null)
         {
-            respawnPoint = startPlatform.position; // Setze den Respawn Punkt auf die Startplattform
+            respawnPoint = startPlatform.position; // Hier wird der repawn punkt setzet
             
         }
         else
@@ -50,7 +50,7 @@ public class CharacterControllerScript : MonoBehaviour
 
         if (jumpBoostTimerText != null)
         {
-            jumpBoostTimerText.gameObject.SetActive(false); // Verstecke den Text zunächst
+            jumpBoostTimerText.gameObject.SetActive(false); // Text wird nur angezeigt, wenn der Jump Boost aktiviert ist
         }
         else
         {
@@ -72,13 +72,13 @@ public class CharacterControllerScript : MonoBehaviour
             return;
         }
 
-        // Überprüfe, ob der Spieler unter die Respawn-Höhe gefallen ist
+        // Überprüfe, ob der Spieler unter die Respawn-Höhe gefallen ist (-10f)
         if (transform.position.y < respawnHeightThreshold)
         {
             GameOver();
         }
 
-        // CharacterController.isGrounded in Kombination mit einem Raycast
+        // CharacterController.isGrounded in Kombination mit einem Raycast zur überprüfung der Bodenberührung
         isGrounded = characterController.isGrounded || CheckGrounded();
 
         float moveHorizontal = Input.GetAxis("Horizontal");
@@ -106,27 +106,27 @@ public class CharacterControllerScript : MonoBehaviour
                 moveDirection.y = 0f;
             }
 
-            // Reset IsFalling when grounded and not jumping
+            
             animator.SetBool("IsFalling", false);
         }
         else
         {
-            // Reduziere die Bewegungsgeschwindigkeit in der Luft
+            // Bewegung in der Luft
             moveDirection.x = horizontalMovement.x * airControlFactor;
             moveDirection.z = horizontalMovement.z * airControlFactor;
             moveDirection.y += gravity * gravityScale * Time.deltaTime;
 
-            // Set IsFalling if in the air and falling
+            
             if (moveDirection.y < 0)
             {
                 animator.SetBool("IsFalling", true);
             }
         }
 
-        // Füge eine minimale Bewegung hinzu, um sicherzustellen, dass der CharacterController ständig seine Position überprüft
+       
         if (moveDirection.magnitude < 0.01f && isGrounded)
         {
-            moveDirection.y = -0.1f; // Minimal nach unten bewegen, um Bodenkontakt zu behalten
+            moveDirection.y = -0.1f; // Minimal nach unten um Bodenkontakt zu behalten
         }
 
         characterController.Move(moveDirection * Time.deltaTime);
@@ -136,12 +136,12 @@ public class CharacterControllerScript : MonoBehaviour
         animator.SetFloat("VerticalSpeed", moveVertical);
         animator.SetBool("IsSprinting", isRunning);
 
-        // Übergangswerte anpassen
+        //Animation definitonen
         if (currentSpeed > 0 && currentSpeed < walkSpeed)
         {
             animator.SetBool("IsSlowRunning", true);
             animator.SetBool("IsSprinting", false);
-        }
+        } 
         else if (currentSpeed >= 55)
         {
             animator.SetBool("IsSlowRunning", false);
@@ -159,10 +159,10 @@ public class CharacterControllerScript : MonoBehaviour
             isJumping = false;
         }
 
-        // Ensure isGrounded is correctly set in Animator
+        
         animator.SetBool("IsGrounded", isGrounded);
 
-        // Aktualisiere den Jump Boost Timer Text
+        // Dynamischer Jumpboost-Timer text
         if (isJumpBoosted && jumpBoostTimerText != null)
         {
             float remainingTime = jumpBoostEndTime - Time.time;
@@ -182,24 +182,26 @@ public class CharacterControllerScript : MonoBehaviour
 
     private bool CheckGrounded()
     {
-        // Die Höhe und Länge des Raycast anpassen
+        //Raycast für die Bodenberührung
         float rayLength = groundCheckDistance;
-        Vector3 rayStart = transform.position + Vector3.up * 0.1f; // Raycast leicht über dem Charakter starten
+        Vector3 rayStart = transform.position + Vector3.up * 0.1f; // Raycast leicht über dem char
 
         Debug.DrawRay(rayStart, Vector3.down * rayLength, Color.red);
         return Physics.Raycast(rayStart, Vector3.down, rayLength);
     }
 
+    // Kollision mit dem Boden
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.gameObject.CompareTag("Ground") && !Input.GetKey(KeyCode.Space))
         {
             animator.SetBool("IsJumping", false);
             isJumping = false;
-            animator.SetBool("IsFalling", false); // Reset IsFalling when hitting the ground
+            animator.SetBool("IsFalling", false); //Zurücksetzen des Fall-Bools
         }
     }
 
+//Respwawn Funktion
     private void Respawn()
     {
         
@@ -208,21 +210,13 @@ public class CharacterControllerScript : MonoBehaviour
         characterController.enabled = true; // Aktivieren Sie den CharacterController nach der Positionsänderung
     }
 
+//GameOver Funktion
     private void GameOver()
     {
         SceneManager.LoadScene("GameOver");
     }
 
-    public void SetCheckpoint(Vector3 newCheckpoint, int checkpointIndex)
-    {
-        if (checkpointIndex > currentCheckpointIndex)
-        {
-           
-            respawnPoint = newCheckpoint;
-            currentCheckpointIndex = checkpointIndex;
-        }
-    }
-
+ 
     // Methode zum Aktivieren des Jump Boosts
     public void ActivateJumpBoost()
     {
@@ -231,6 +225,8 @@ public class CharacterControllerScript : MonoBehaviour
             StartCoroutine(JumpBoostCoroutine());
         }
     }
+
+    // Coroutine für den Jump Boost
 
     private IEnumerator JumpBoostCoroutine()
     {
@@ -252,8 +248,8 @@ public class CharacterControllerScript : MonoBehaviour
     public void PortalRespawn(Vector3 respawnPosition)
     {
      
-        characterController.enabled = false; // Deaktivieren Sie den CharacterController vor der Positionsänderung
+        characterController.enabled = false;  //Daktivern des CahraacterControllers vor der Positionsänderung
         transform.position = respawnPosition;
-        characterController.enabled = true; // Aktivieren Sie den CharacterController nach der Positionsänderung
+        characterController.enabled = true; //Aktivieren des CharacterControllers nach der Positionsänderung
     }
 }
