@@ -24,9 +24,8 @@ public class CharacterControllerScript : MonoBehaviour
     private bool isGrounded;
     private bool isJumping;
     private Vector3 respawnPoint; // Respawn Punkt
-    private int currentCheckpointIndex = -1;
     private bool isJumpBoosted = false;
-    private float jumpBoostEndTime;
+    private float jumpBoostEndTime; 
 
     void Start()
     {
@@ -177,7 +176,6 @@ public class CharacterControllerScript : MonoBehaviour
             }
         }
 
-        
     }
 
     private bool CheckGrounded()

@@ -3,19 +3,38 @@ using UnityEngine;
 public class MusicController : MonoBehaviour
 {
     public AudioSource backgroundMusic;
+    public AudioClip goalMusic; //Zeil Plattform
     public float targetVolume = 1.0f;
     public float fadeDuration = 5.0f;
+    public int maxPlayCount = 6; // Maximale Anzahl der Wiederholungen
 
     private float currentVolume = 0f;
     private Coroutine fadeCoroutine;
+    private int playCount = 0;
 
     void Start()
     {
         // Musik initialisieren
         if (backgroundMusic != null)
         {
-            backgroundMusic.loop = true;
+            backgroundMusic.loop = false; // Loop deaktivieren
             backgroundMusic.volume = currentVolume;
+            backgroundMusic.Play();
+            StartFadeInMusic();
+            backgroundMusic.Play(); 
+            backgroundMusic.Play();
+        }
+    }
+
+    void Update()
+    {
+        if (backgroundMusic != null && !backgroundMusic.isPlaying)
+        {
+            if (playCount < maxPlayCount)
+            {
+                playCount++;
+                backgroundMusic.Play();
+            }
         }
     }
 
@@ -83,5 +102,16 @@ public class MusicController : MonoBehaviour
 
         backgroundMusic.volume = 0f;
         backgroundMusic.Stop();
+    }
+
+    public void PlayGoalMusic() // Musik für die Zielplattform 
+    {
+        if (backgroundMusic != null)
+        {
+            StopMusic(); // Aktuelle Musik ausblenden und stoppen
+            backgroundMusic.clip = goalMusic; // Goal-Musik setzen
+            playCount = 0; // Zähler zurücksetzen
+            StartMusic(); // Neue Musik einblenden und abspielen
+        }
     }
 }
